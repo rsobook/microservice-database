@@ -1,0 +1,115 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.bmuschko:gradle-docker-plugin:3.2.0'
+    }
+}
+
+apply plugin: 'com.bmuschko.docker-remote-api'
+
+
+ext {
+    port = "5432"
+    dockerImageName = String.format("%s/%s", DOCKER_HUB_USER, project.name)
+    dockerImageTag = String.format("%s:%s", dockerImageName, "1.0")
+    dockerContainerName = String.format("%s", project.name)
+}
+
+/**
+ * DOCKER TASKS
+ */
+
+import com.bmuschko.gradle.docker.tasks.container.*
+import com.bmuschko.gradle.docker.tasks.image.*
+
+docker {
+    registryCredentials {
+        url = 'https://hub.docker.com/'
+        email = DOCKER_HUB_EMAIL
+        password = DOCKER_HUB_PASSWORD
+        username = DOCKER_HUB_USER
+    }
+}
+
+task dockerfileCreate(type: Dockerfile) {
+    group 'docker'
+    destFile = project.file('docker/Dockerfile')
+
+    from 'postgres:9.6.5'
+
+    maintainer 'Jan Gasperlin "jg1724@student.uni-lj.si"'
+    
+    environmentVariable("POSTGRES_USER", 'postgres')
+    environmentVariable("POSTGRES_PASSWORD", 'root')
+
+    exposePort {
+        String.format("1%s:%s", port, port)
+    }
+
+    addFile("/sql/create-table-pet.sql", "/usr/sql/create-table-pet.sql")
+    addFile("/sql/insert-table-pet.sql", "/usr/sql/insert-table-pet.sql")
+
+    addFile("/sql/create-table-user.sql", "/usr/sql/create-table-user.sql")
+    addFile("/sql/insert-table-user.sql", "/usr/sql/insert-table-user.sql")
+
+    addFile("/sql/create-table-user_friends.sql", "/usr/sql/create-table-user_friends.sql")
+    addFile("/sql/insert-table-user_friends.sql", "/usr/sql/insert-table-user_friends.sql")
+
+    addFile("/sql/create-table-user_messages.sql", "/usr/sql/create-table-user_messages.sql")
+    addFile("/sql/insert-table-user_messages.sql", "/usr/sql/insert-table-user_messages.sql")
+
+    addFile("init-rsobook-db.sh", "/docker-entrypoint-initdb.d/")
+
+}
+
+task imageBuild(type: DockerBuildImage) {
+    group 'docker'
+    dependsOn dockerfileCreate
+    inputDir = dockerfileCreate.destFile.parentFile
+    tag = dockerImageTag
+    //noCache = true
+}
+
+task imageRemove(type: DockerRemoveImage) {
+    group 'docker'
+    imageId dockerImageTag
+}
+
+task imagePushToDockerHub(type: DockerPushImage){
+    group 'docker'
+    imageName = dockerImageTag
+    tag = version
+}
+
+task containerCreate(type: DockerCreateContainer) {
+    group 'docker'
+    targetImageId {
+        dockerImageTag
+    }
+    containerName = dockerContainerName
+    portBindings = [String.format("%s:%s", port, port)]
+}
+
+task containerStart(type: DockerStartContainer) {
+    group 'docker'
+    targetContainerId {
+        dockerContainerName
+    }
+}
+
+task containerStop(type: DockerStopContainer) {
+    group 'docker'
+    targetContainerId {
+        dockerContainerName
+    }
+}
+
+task containerRemove(type: DockerRemoveContainer) {
+    group 'docker'
+    targetContainerId {
+        dockerContainerName
+    }
+}
