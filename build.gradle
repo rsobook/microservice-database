@@ -121,6 +121,7 @@ task containerCreate(type: DockerCreateContainer) {
     containerName = dockerContainerName
     portBindings = [String.format("5%s:%s", port, port)]
     hostName = dockerHostname
+    network = 'rsonetwork'
 }
 
 task containerStart(type: DockerStartContainer) {
@@ -128,6 +129,13 @@ task containerStart(type: DockerStartContainer) {
     targetContainerId {
         dockerContainerName
     }
+}
+
+task dockerBootstrap() {
+    group 'docker'
+    dependsOn containerCreate
+    dependsOn containerStart
+    containerCreate.finalizedBy containerStart
 }
 
 
