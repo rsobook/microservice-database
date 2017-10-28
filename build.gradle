@@ -10,11 +10,14 @@ buildscript {
 
 apply plugin: 'com.bmuschko.docker-remote-api'
 
-
 ext {
+    dockerHubUser =  project.hasProperty('DOCKER_HUB_USER') ? DOCKER_HUB_USER : System.getenv('DOCKER_HUB_USER')
+    dockerHubEmail =  project.hasProperty('DOCKER_HUB_EMAIL') ? DOCKER_HUB_EMAIL : System.getenv('DOCKER_HUB_EMAIL')
+    dockerHubPassword =  project.hasProperty('DOCKER_HUB_PASSWORD') ? DOCKER_HUB_PASSWORD : System.getenv('DOCKER_HUB_PASSWORD')
+
     port = "5432"
     dockerHostname = 'database.rsobook.fri.si'
-    dockerImageName = String.format("%s/%s", DOCKER_HUB_USER, project.name)
+    dockerImageName = String.format("%s/%s", dockerHubUser, project.name)
     dockerImageTag = String.format("%s:%s", dockerImageName, "1.0")
     dockerContainerName = String.format("%s", project.name)
 }
@@ -29,9 +32,9 @@ import com.bmuschko.gradle.docker.tasks.image.*
 docker {
     registryCredentials {
         url = 'https://hub.docker.com/'
-        email = DOCKER_HUB_EMAIL
-        password = DOCKER_HUB_PASSWORD
-        username = DOCKER_HUB_USER
+        email = dockerHubEmail
+        password = dockerHubPassword
+        username = dockerHubUser
     }
 }
 
@@ -107,9 +110,8 @@ task imageBuild(type: DockerBuildImage) {
 
 task imagePushToDockerHub(type: DockerPushImage){
     group 'docker'
-    dependsOn imageBuild
-    imageName = dockerImageTag
-    tag = version
+    imageName = dockerImageName
+    tag = "1.0"
 }
 
 task containerCreate(type: DockerCreateContainer) {
