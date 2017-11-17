@@ -8,6 +8,8 @@ buildscript {
     }
 }
 
+version '1.0.1'
+
 apply plugin: 'com.bmuschko.docker-remote-api'
 
 ext {
@@ -18,7 +20,7 @@ ext {
     port = "5432"
     dockerHostname = 'database.rsobook.fri.si'
     dockerImageName = String.format("%s/%s", dockerHubUser, project.name)
-    dockerImageTag = String.format("%s:%s", dockerImageName, "1.0")
+    dockerImageTag = String.format("%s:%s", dockerImageName, version)
     dockerContainerName = String.format("%s", project.name)
 }
 
@@ -113,7 +115,7 @@ task imageBuild(type: DockerBuildImage) {
 task imagePushToDockerHub(type: DockerPushImage){
     group 'docker'
     imageName = dockerImageName
-    tag = "1.0.1"
+    tag = version
 }
 
 task containerCreate(type: DockerCreateContainer) {
