@@ -50,7 +50,7 @@ task dockerfileCreate(type: Dockerfile) {
     environmentVariable("POSTGRES_PASSWORD", 'root')
 
     exposePort {
-        String.format("5%s:%s", port, port)
+        String.format("%s:%s", port, port)
     }
 
     addFile("/sql/create-table-pet.sql", "/usr/sql/create-table-pet.sql")
@@ -64,6 +64,8 @@ task dockerfileCreate(type: Dockerfile) {
 
     addFile("/sql/create-table-user_wall.sql", "/usr/sql/create-table-user_wall.sql")
     addFile("/sql/insert-table-user_wall.sql", "/usr/sql/insert-table-user_wall.sql")
+
+    addFile("/sql/create-table-images.sql", "/usr/sql/create-table-images.sql")
 
     addFile("init-rsobook-db.sh", "/docker-entrypoint-initdb.d/")
 
@@ -111,7 +113,7 @@ task imageBuild(type: DockerBuildImage) {
 task imagePushToDockerHub(type: DockerPushImage){
     group 'docker'
     imageName = dockerImageName
-    tag = "1.0"
+    tag = "1.0.1"
 }
 
 task containerCreate(type: DockerCreateContainer) {

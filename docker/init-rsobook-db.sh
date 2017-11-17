@@ -8,6 +8,7 @@ psql -v ON_ERROR_STOP=1 --username postgres <<-EOSQL
     CREATE DATABASE "rsobook-user";
 	CREATE DATABASE "rsobook-user_friends";
 	CREATE DATABASE "rsobook-user_wall";
+	CREATE DATABASE "rsobook-images";
 EOSQL
 
 
@@ -37,3 +38,8 @@ psql -U postgres -d rsobook-user_friends -f /usr/sql/insert-table-user_friends.s
 ############################
 psql -U postgres -d rsobook-user_wall -a -f /usr/sql/create-table-user_wall.sql
 psql -U postgres -d rsobook-user_wall -f /usr/sql/insert-table-user_wall.sql
+
+############################
+### CREATE public.images TABLE
+############################
+psql -U postgres -d rsobook-images -a -f /usr/sql/create-table-images.sql
