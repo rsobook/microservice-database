@@ -10,7 +10,7 @@ spec:
         app: ms-database
     spec:
       containers:
-        - image: rsobook/ms-database:1.0.2
+        - image: rsobook/ms-database:2.0.0
           name: ms-database
           ports:
           - containerPort: 5432
