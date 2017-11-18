@@ -4,6 +4,9 @@ metadata:
   name: ms-database
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: ms-database
   template:
     metadata:
       labels:
