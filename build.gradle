@@ -124,7 +124,7 @@ task containerCreate(type: DockerCreateContainer) {
     targetImageId {
         dockerImageTag
     }
-    containerName = dockerContainerName
+    containerName = dockerContainerName.replace('-', '.')
     portBindings = [String.format("5%s:%s", port, port)]
     hostName = dockerHostname
     network = 'rsonetwork'
